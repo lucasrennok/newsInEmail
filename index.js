@@ -1,3 +1,5 @@
+const generateHtml = require("./generateHtml/generateHtml");
+
 const axios = require("axios");
 require("dotenv").config();
 
@@ -7,5 +9,8 @@ const baseUrl = `https://newsapi.org/v2/top-headlines?country=br&from=${today}&a
 const apiKey = process.env.API_KEY;
 
 axios.get(baseUrl + apiKey).then((response) => {
-	console.log(response.data);
+	if (response.data.articles) {
+		const email = generateHtml(response.data.articles);
+		console.log(email);
+	}
 });
