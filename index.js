@@ -1,9 +1,11 @@
 const axios = require("axios");
+require("dotenv").config();
 
-const baseUrl =
-	"https://newsapi.org/v2/top-headlines?sources=google-news-br&apiKey=";
-const apiKey = "";
+const today = new Date().toISOString().split("T")[0];
 
-const response = axios.get(baseUrl + apiKey);
+const baseUrl = `https://newsapi.org/v2/top-headlines?country=br&from=${today}&apiKey=`;
+const apiKey = process.env.API_KEY;
 
-console.log(JSON.stringify(response.data));
+axios.get(baseUrl + apiKey).then((response) => {
+	console.log(response.data);
+});
