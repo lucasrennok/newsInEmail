@@ -11,6 +11,6 @@ const apiKey = process.env.API_KEY;
 axios.get(baseUrl + apiKey).then((response) => {
 	if (response.data.articles) {
 		const email = generateHtml(response.data.articles);
-		console.log(email);
+		console.log(email.join(""));
 	}
 });

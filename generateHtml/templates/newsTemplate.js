@@ -2,21 +2,7 @@ const handlebars = require("handlebars");
 
 // eslint-disable-next-line quotes
 const html = `
-<!DOCTYPE html>
-<html lang="br">
-  <head>
-    <meta charset="UTF-8" />
-  </head>
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
-    .page-break {
-      page-break-before: always;
-    }
-    .custom-font {
-      font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
-    }
-  </style>
-  <body>
+  <div class="newsComponent">
     <h1>{{title}}</h1>
     <div>
       {{description}}
@@ -34,8 +20,7 @@ const html = `
       src="{{urlToImage}}"
       alt="News"
     />
-  </body>
-</html>
+  </div>
 `;
 
 function newsTemplate(context) {
