@@ -1,5 +1,6 @@
 const generateHtml = require("./generateHtml/generateHtml");
 const nodemailer = require("nodemailer");
+const schedule = require("node-schedule");
 
 const axios = require("axios");
 require("dotenv").config();
@@ -12,7 +13,7 @@ const apiKey = process.env.API_KEY;
 const sendMail = (htmlEmail) => {
 	const transporter = nodemailer.createTransport({
 		host: "smtp.gmail.com", // We also used gmail smtp
-		port: 587,
+		port: 587, // TLS
 		secure: false,
 		auth: {
 			user: process.env.EMAIL_USER,
@@ -37,11 +38,16 @@ const sendMail = (htmlEmail) => {
 	});
 };
 
-axios.get(baseUrl + apiKey).then((response) => {
-	if (response.data.articles) {
-		const email = generateHtml(response.data.articles);
-		const htmlEmailData = email.join("");
+// This job runs at 9:00AM
+const job = schedule.scheduleJob({ hour: 9, minute: 0 }, () => {
+	axios.get(baseUrl + apiKey).then((response) => {
+		if (response.data.articles) {
+			const email = generateHtml(response.data.articles);
+			const htmlEmailData = email.join("");
 
-		sendMail(htmlEmailData);
-	}
+			sendMail(htmlEmailData);
+		}
+	});
 });
+
+job.schedule();
