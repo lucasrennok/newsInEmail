@@ -2,24 +2,11 @@ const handlebars = require("handlebars");
 
 // eslint-disable-next-line quotes
 const html = `
-  <div class="newsComponent">
+  <div>
     <h1>{{title}}</h1>
-    <div>
-      {{description}}
-    </div>
+    <br />
+    <a href="{{url}}" target="_blank" rel="noopener noreferrer"> >>> Link para a notícia</a>
     <br /><br />
-    <div>
-      {{author}}
-    </div>
-    <br /><br />
-    <div class="custom-font">
-      {{url}}
-    </div>
-    <br /><br />
-    <img
-      src="{{urlToImage}}"
-      alt="News"
-    />
   </div>
 `;
 
