@@ -5,11 +5,7 @@ const schedule = require("node-schedule");
 const axios = require("axios");
 require("dotenv").config();
 
-const today = new Date().toISOString().split("T")[0];
-
-const baseUrl = `https://newsapi.org/v2/top-headlines?country=br&from=${today}&apiKey=`;
-const apiKey = process.env.API_KEY;
-
+// Function to send the email
 const sendMail = (htmlEmail) => {
 	const transporter = nodemailer.createTransport({
 		host: "smtp.gmail.com", // We also used gmail smtp
@@ -33,14 +29,17 @@ const sendMail = (htmlEmail) => {
 		if (error) {
 			console.log(error);
 		} else {
-			console.log("Email sent | response: " + info.response);
+			console.log("Sent | response: " + info.response);
 		}
 	});
 };
 
 // This job runs at 9:00AM
 const job = schedule.scheduleJob({ hour: 9, minute: 0 }, () => {
-	axios.get(baseUrl + apiKey).then((response) => {
+	const today = new Date().toISOString().split("T")[0];
+	const baseUrl = `https://newsapi.org/v2/top-headlines?country=br&from=${today}&apiKey=`;
+
+	axios.get(baseUrl + process.env.API_KEY).then((response) => {
 		if (response.data.articles) {
 			const email = generateHtml(response.data.articles);
 			const htmlEmailData = email.join("");
