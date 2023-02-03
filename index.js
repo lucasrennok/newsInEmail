@@ -27,9 +27,9 @@ const sendMail = (htmlEmail) => {
 
 	transporter.sendMail(mailOptions, function (error, info) {
 		if (error) {
-			console.log(error);
+			console.error(error);
 		} else {
-			console.log("Sent | response: " + info.response);
+			console.info("Sent | response: " + info.response);
 		}
 	});
 };
@@ -41,8 +41,7 @@ const job = schedule.scheduleJob({ hour: 9, minute: 0 }, () => {
 
 	axios.get(baseUrl + process.env.API_KEY).then((response) => {
 		if (response.data.articles) {
-			const email = generateHtml(response.data.articles);
-			const htmlEmailData = email.join("");
+			const htmlEmailData = generateHtml(response.data.articles);
 
 			sendMail(htmlEmailData);
 		}

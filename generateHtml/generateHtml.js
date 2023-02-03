@@ -7,7 +7,7 @@ const generateHtml = (articles) => {
 		emailData.push(newsTemplate(articles[i]));
 	}
 
-	return emailData;
+	return emailData.join("");
 };
 
 module.exports = generateHtml;
