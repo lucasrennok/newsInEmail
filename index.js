@@ -1,18 +1,15 @@
 const generateHtml = require("./generateHtml/generateHtml");
 const nodemailer = require("nodemailer");
+const schedule = require("node-schedule");
 
 const axios = require("axios");
 require("dotenv").config();
 
-const today = new Date().toISOString().split("T")[0];
-
-const baseUrl = `https://newsapi.org/v2/top-headlines?country=br&from=${today}&apiKey=`;
-const apiKey = process.env.API_KEY;
-
+// Function to send the email
 const sendMail = (htmlEmail) => {
 	const transporter = nodemailer.createTransport({
 		host: "smtp.gmail.com", // We also used gmail smtp
-		port: 587,
+		port: 587, // TLS
 		secure: false,
 		auth: {
 			user: process.env.EMAIL_USER,
@@ -30,18 +27,59 @@ const sendMail = (htmlEmail) => {
 
 	transporter.sendMail(mailOptions, function (error, info) {
 		if (error) {
-			console.log(error);
+			console.error(error);
 		} else {
-			console.log("Email sent | response: " + info.response);
+			console.info("Sent | response: " + info.response);
 		}
 	});
 };
 
-axios.get(baseUrl + apiKey).then((response) => {
-	if (response.data.articles) {
-		const email = generateHtml(response.data.articles);
-		const htmlEmailData = email.join("");
+// This job runs at 9:00AM
+const job = schedule.scheduleJob(
+	{ hour: process.env.SEND_HOUR, minute: process.env.SEND_MINUTE },
+	() => {
+		let htmlEmailData = "";
+		const today = new Date().toISOString().split("T")[0];
+		const limitSetToSources = 5;
+		const timeoutInSecs = 10;
 
-		sendMail(htmlEmailData);
+		const baseUrl = `https://newsapi.org/v2/top-headlines?country=br&from=${today}&apiKey=`;
+		const baseUrlUs = `https://newsapi.org/v2/top-headlines?country=us&from=${today}&apiKey=`;
+		const newYorkTimesBaseUrl = `https://api.nytimes.com/svc/news/v3/content/nyt/all.json?api-key=`;
+
+		axios
+			.get(newYorkTimesBaseUrl + process.env.API_KEY_NYT)
+			.then((response) => {
+				if (response.data.results) {
+					htmlEmailData += generateHtml(
+						response.data.results,
+						limitSetToSources
+					);
+				}
+			});
+
+		axios.get(baseUrlUs + process.env.API_KEY).then((response) => {
+			if (response.data.articles) {
+				htmlEmailData += generateHtml(
+					response.data.articles,
+					limitSetToSources
+				);
+			}
+		});
+
+		axios.get(baseUrl + process.env.API_KEY).then((response) => {
+			if (response.data.articles) {
+				htmlEmailData += generateHtml(
+					response.data.articles,
+					limitSetToSources
+				);
+			}
+		});
+
+		setTimeout(() => {
+			sendMail(htmlEmailData);
+		}, timeoutInSecs * 1000);
 	}
-});
+);
+
+job.schedule();
